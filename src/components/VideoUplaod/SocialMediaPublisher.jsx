@@ -7,9 +7,11 @@ import { db } from "../../firebaseConfig";
 import { collection, addDoc } from "firebase/firestore";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import PublishIcon from "@mui/icons-material/Publish";
+import { toast } from "react-toastify";
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const SCOPES = import.meta.env.VITE_GOOGLE_SCOPES;
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 const SocialMediaPublisher = ({
   videoFile,
@@ -17,22 +19,48 @@ const SocialMediaPublisher = ({
   setTitle,
   description,
   setDescription,
-  tags,
-  setTags,
   onPublishSuccess,
 }) => {
   const [platform, setPlatform] = useState("YouTube Shorts");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [tokenClient, setTokenClient] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
 
   useEffect(() => {
-    gapi.load("client:auth2", () => {
-      gapi.client.init({ clientId: CLIENT_ID, scope: SCOPES });
-    });
+    const loadGapiAndInit = async () => {
+      gapi.load("client", async () => {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [
+            "https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest",
+          ],
+        });
+
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: (tokenResponse) => {
+            gapi.client.setToken(tokenResponse);
+            setAccessToken(tokenResponse.access_token);
+          },
+        });
+
+        setTokenClient(client);
+      });
+    };
+
+    loadGapiAndInit();
   }, []);
 
-  const handleSocialPublish = async () => {
-    if (!title || !description || !videoFile) {
+  useEffect(() => {
+    if (accessToken) {
+      uploadVideo();
+    }
+  }, [accessToken]);
+
+  const handleSocialPublish = () => {
+    if (!title.trim() || !description.trim() || !videoFile) {
       setUploadError("Title, description, and video are required.");
       return;
     }
@@ -40,26 +68,32 @@ const SocialMediaPublisher = ({
     setUploading(true);
     setUploadError("");
 
-    try {
-      await gapi.auth2.getAuthInstance().signIn();
+    if (tokenClient) {
+      tokenClient.requestAccessToken();
+    } else {
+      setUploadError("Google token client not initialized.");
+      setUploading(false);
+    }
+  };
 
+  const uploadVideo = async () => {
+    try {
       const fileMetadata = {
         snippet: {
-          title,
-          description,
-          tags: tags.split(",").map((t) => t.trim()),
+          title: title.trim(),
+          description: description.trim(),
         },
         status: {
           privacyStatus: "public",
         },
       };
 
-      const accessToken = gapi.auth.getToken().access_token;
-
       const form = new FormData();
       form.append(
         "snippet",
-        new Blob([JSON.stringify(fileMetadata)], { type: "application/json" })
+        new Blob([JSON.stringify(fileMetadata)], {
+          type: "application/json",
+        })
       );
       form.append("video", videoFile);
 
@@ -73,21 +107,19 @@ const SocialMediaPublisher = ({
       );
 
       const resultText = await res.text();
-
       if (!res.ok) throw new Error(resultText);
 
-      alert("🎉 YouTube upload successful!");
+      toast.success("🎉 YouTube upload successful!");
       await addDoc(collection(db, "video-upload"), {
-        title,
-        description,
-        tags,
+        title: title.trim(),
+        description: description.trim(),
         status: "Published",
         createdAt: new Date().toISOString(),
       });
       onPublishSuccess();
     } catch (err) {
       console.error("Upload error:", err);
-      setUploadError("❌ Failed to upload to YouTube.");
+      setUploadError("Failed to upload to YouTube.");
     } finally {
       setUploading(false);
     }
@@ -111,11 +143,6 @@ const SocialMediaPublisher = ({
         label="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-      />
-      <FloatingInput
-        label="Tags"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
       />
 
       <button

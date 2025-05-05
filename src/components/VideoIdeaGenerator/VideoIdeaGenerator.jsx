@@ -62,8 +62,7 @@ const VideoIdeaGenerator = () => {
         throw new Error(data.error?.message || "Error from Groq API");
       }
     } catch (err) {
-      console.error(err);
-      setError("Failed to fetch ideas. Check API key or try again later.");
+      setError("Failed to fetch ideas.");
     } finally {
       setLoading(false);
     }
@@ -88,7 +87,6 @@ const VideoIdeaGenerator = () => {
       setTopic("");
       setEditableIdea("");
     } catch (error) {
-      console.error("Error saving to Firestore:", error);
       setError("Failed to save content. Please try again.");
     }
   };

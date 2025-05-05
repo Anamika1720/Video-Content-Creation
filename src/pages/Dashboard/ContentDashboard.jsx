@@ -7,6 +7,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import ErrorIcon from "@mui/icons-material/Error";
+import { toast } from "react-toastify";
 
 const ContentDashboard = () => {
   const [ideas, setIdeas] = useState([]);
@@ -25,8 +26,8 @@ const ContentDashboard = () => {
           ...doc.data(),
         }));
         setIdeas(list);
-      } catch (e) {
-        console.error("Error fetching video ideas:", e);
+      } catch {
+        toast.error("Error fetching video ideas");
       } finally {
         setLoadingIdeas(false);
       }
@@ -40,8 +41,8 @@ const ContentDashboard = () => {
           ...doc.data(),
         }));
         setUploads(list);
-      } catch (e) {
-        console.error("Error fetching video uploads:", e);
+      } catch {
+        toast.error("Error fetching video uploads");
       } finally {
         setLoadingUploads(false);
       }

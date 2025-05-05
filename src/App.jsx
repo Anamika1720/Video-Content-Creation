@@ -14,6 +14,8 @@ import SocialMediaPublisher from "./components/VideoUplaod/SocialMediaPublisher"
 import ContentDashboard from "./pages/Dashboard/ContentDashboard";
 import VideoIdeaGenerator from "./components/VideoIdeaGenerator/VideoIdeaGenerator";
 import RouteTracker from "./components/RouteTracker";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -33,61 +35,64 @@ const App = () => {
   }, []);
 
   return (
-    <Router>
-      <RouteTracker />
-      <Routes>
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/dashboard" /> : <OtpLogin />}
-        />
+    <>
+      <ToastContainer />
+      <Router>
+        <RouteTracker />
+        <Routes>
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/dashboard" /> : <OtpLogin />}
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/content-dashboard"
-          element={
-            <ProtectedRoute>
-              <ContentDashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/content-dashboard"
+            element={
+              <ProtectedRoute>
+                <ContentDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/video-idea"
-          element={
-            <ProtectedRoute>
-              <VideoIdeaGenerator />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/video-idea"
+            element={
+              <ProtectedRoute>
+                <VideoIdeaGenerator />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/upload"
-          element={
-            <ProtectedRoute>
-              <VideoUploadPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/upload"
+            element={
+              <ProtectedRoute>
+                <VideoUploadPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/youtube-description"
-          element={
-            <ProtectedRoute>
-              <SocialMediaPublisher />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/youtube-description"
+            element={
+              <ProtectedRoute>
+                <SocialMediaPublisher />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/" element={<Navigate to="/login" />} />
-      </Routes>
-    </Router>
+          <Route path="/" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    </>
   );
 };
 

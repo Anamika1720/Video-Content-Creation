@@ -9,7 +9,6 @@ const VideoUploadPage = () => {
   const [isPublished, setIsPublished] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
 
   const handleFileSelect = (file) => {
     setVideoFile(file);
@@ -29,20 +28,13 @@ const VideoUploadPage = () => {
 
         {videoFile && !isPublished && (
           <>
-            <video
-              controls
-              src={URL.createObjectURL(videoFile)}
-              className="w-full rounded border mt-4 shadow"
-            />
-
+            <VideoPreview videoFile={videoFile} />
             <SocialMediaPublisher
               videoFile={videoFile}
               title={title}
               setTitle={setTitle}
               description={description}
               setDescription={setDescription}
-              tags={tags}
-              setTags={setTags}
               onPublishSuccess={() => setIsPublished(true)}
             />
           </>
@@ -50,12 +42,22 @@ const VideoUploadPage = () => {
 
         {isPublished && (
           <p className="text-green-600 font-semibold mt-4">
-            ✅ Video successfully published!
+            Video successfully published!
           </p>
         )}
       </div>
     </>
   );
 };
+
+const VideoPreview = React.memo(({ videoFile }) => {
+  return (
+    <video
+      controls
+      src={URL.createObjectURL(videoFile)}
+      className="w-full rounded border mt-4 shadow"
+    />
+  );
+});
 
 export default VideoUploadPage;

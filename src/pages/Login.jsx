@@ -3,6 +3,7 @@ import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { PhoneAndroid, Lock, Send } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const OtpLogin = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -41,10 +42,14 @@ const OtpLogin = () => {
   };
 
   const handlePhoneNumberSubmit = async () => {
-    if (!phoneNumber.startsWith("+")) {
+    // Phone number validation regex (starts with country code, e.g., +91 for India)
+    const phoneRegex = /^\+?\d{10,15}$/;
+
+    if (!phoneNumber.startsWith("+") || !phoneRegex.test(phoneNumber)) {
       setErrors((prev) => ({
         ...prev,
-        phoneNumber: "Phone number must start with country code, e.g. +91...",
+        phoneNumber:
+          "Please enter a valid phone number starting with country code (e.g., +91).",
       }));
       return;
     }
@@ -63,9 +68,9 @@ const OtpLogin = () => {
       );
       window.confirmationResult = confirmationResult;
       setIsOtpSent(true);
+      toast.success("OTP sent successfully!");
     } catch (error) {
-      console.error("Error during OTP send", error);
-      alert("Failed to send OTP. Please try again.");
+      toast.error("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -84,12 +89,14 @@ const OtpLogin = () => {
       const result = await window.confirmationResult.confirm(verificationCode);
       setUser(result.user);
       navigate("/dashboard");
+      toast.success("OTP verified successfully!");
     } catch (error) {
       console.error("Error verifying OTP", error);
       setErrors((prev) => ({
         ...prev,
         verificationCode: "Invalid OTP. Try again.",
       }));
+      toast.error("Invalid OTP. Try again.");
     }
   };
 
