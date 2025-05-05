@@ -1,12 +1,83 @@
-# React + Vite
+# Video Content Creation Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for creators to generate AI-powered video ideas, built with React, Tailwind CSS, and integrated with OpenAI’s LLaMA-3 model via Groq API.
 
-Currently, two official plugins are available:
+## Live Demo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Vercel : video-content-creation.vercel.app(https://video-content-creation.vercel.app)
 
-## Expanding the ESLint configuration
+## GitHub Repository
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Source code :github.com/Anamika1720/Video-Content-Creation(https://github.com/Anamika1720/Video-Content-Creation)
+
+## Features
+
+**Video Idea Generator**
+
+- Generate short, creative video content ideas using the Groq LLaMA-3 model.
+- Choose tone (Informative, Humorous, Inspirational) to customize content.
+- Set video duration using minutes and seconds inputs.
+- Preview ideas before proceeding to publish.
+
+**Social Media Publisher**
+
+Upload and publish your video content directly to:
+
+- YouTube Shorts (with full metadata: title, description, tags)
+- Securely authenticate with Google to publish on YouTube.
+- Add title, description, and tags for better visibility.
+- Video preview and manual file upload before publishing.
+
+**Modular UI Components**
+
+- Floating labels for input fields for a modern, user-friendly experience.
+- Reusable input and select components using Tailwind CSS.
+- Error handling and loading states for better UX feedback.
+
+**Environment Configuration**
+
+- Uses environment variable VITE_GROQ_API_KEY to securely access Groq API.
+- Supports integration with Google's OAuth2 for uploading videos.
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Anamika1720/Video-Content-Creation.git
+
+```
+
+### 2. Navigate into the project directory
+
+```bash
+cd Video-Content-Creation
+```
+
+### 3.Install Dependencies
+
+Navigate to the project directory and install the required dependencies:
+
+```bash
+npm install
+```
+
+### 4.Run the Development Version
+
+To start the development server and test the development version of the application, use:
+
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173` (or the port specified in your configuration).
+
+## Technologies Used
+
+React
+
+Material-U
+
+Tailwind CSS
+
+Vercel (for deployment)
