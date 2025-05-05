@@ -8,9 +8,8 @@ import { collection, addDoc } from "firebase/firestore";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import PublishIcon from "@mui/icons-material/Publish";
 
-const CLIENT_ID =
-  "94428695864-idc7rf2plq324ue0sda26jhuecani6vq.apps.googleusercontent.com";
-const SCOPES = "https://www.googleapis.com/auth/youtube.upload";
+const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const SCOPES = import.meta.env.VITE_GOOGLE_SCOPES;
 
 const SocialMediaPublisher = ({
   videoFile,
