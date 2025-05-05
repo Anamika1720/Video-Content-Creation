@@ -4,11 +4,11 @@ A modern web application for creators to generate AI-powered video ideas, built 
 
 ## Live Demo
 
-Vercel : video-content-creation.vercel.app(https://video-content-creation.vercel.app)
+Vercel : https://video-content-creation.vercel.app
 
 ## GitHub Repository
 
-Source code :github.com/Anamika1720/Video-Content-Creation(https://github.com/Anamika1720/Video-Content-Creation)
+Source code :https://github.com/Anamika1720/Video-Content-Creation
 
 ## Features
 
