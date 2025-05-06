@@ -6,19 +6,20 @@ import {
   Navigate,
 } from "react-router-dom";
 import { auth } from "./firebaseConfig";
-import OtpLogin from "./pages/Login";
-import Dashboard from "./pages/Dashboard/Dashboard";
 import ProtectedRoute from "./components/PortectedRoutes";
-import VideoUploadPage from "./components/VideoUplaod/VideoUploadPage";
-import SocialMediaPublisher from "./components/VideoUplaod/SocialMediaPublisher";
-import ContentDashboard from "./pages/Dashboard/ContentDashboard";
-import VideoIdeaGenerator from "./components/VideoIdeaGenerator/VideoIdeaGenerator";
 import RouteTracker from "./components/RouteTracker";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import VideoIdeaGenerator from "./pages/VideoIdeas/VideoIdeas.Layout";
+import OtpLogin from "./pages/Login/Login.Layout";
+import Dashboard from "./pages/Dashboard/Dashboard.Layout";
+import WorkHistory from "./pages/WorkHistory/WorkHistory.Layout";
+import VideoUploadPage from "./pages/VideoUpload/VideoUploadPage";
+import SocialMediaPublisher from "./pages/VideoUpload/SocialMediaPublisher";
 
 const App = () => {
   const [user, setUser] = useState(null);
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(setUser);
@@ -30,7 +31,7 @@ const App = () => {
     const lastRoute = localStorage.getItem("lastRoute");
 
     if (isLoggedIn && lastRoute && window.location.pathname === "/") {
-      navigate(lastRoute);
+      // navigate(lastRoute);
     }
   }, []);
 
@@ -54,10 +55,10 @@ const App = () => {
             }
           />
           <Route
-            path="/content-dashboard"
+            path="/history"
             element={
               <ProtectedRoute>
-                <ContentDashboard />
+                <WorkHistory />
               </ProtectedRoute>
             }
           />

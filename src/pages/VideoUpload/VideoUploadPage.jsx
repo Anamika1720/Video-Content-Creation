@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import VideoUploader from "./VideoUploader";
 import SocialMediaPublisher from "./SocialMediaPublisher";
-import Header from "../organism/Header";
+import Header from "../../components/organism/Header";
 import VideoLibraryIcon from "@mui/icons-material/VideoLibrary";
 
 const VideoUploadPage = () => {

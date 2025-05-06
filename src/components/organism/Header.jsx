@@ -24,11 +24,11 @@ const Header = () => {
 
       <div className="flex justify-between">
         <button
-          onClick={() => navigate("/content-dashboard")}
+          onClick={() => navigate("/history")}
           className="flex items-center gap-2 text-purple-800 font-medium px-4 py-2 rounded hover:bg-purple-100 transition"
         >
           <DashboardCustomizeIcon />
-          Content Data
+          Work History
         </button>
 
         <button

@@ -1,8 +1,15 @@
 import React, { useState } from "react";
-import FloatingInput, { FloatingSelect } from "./FloatingInput";
-import { db } from "../../firebaseConfig";
-import { collection, addDoc } from "firebase/firestore";
-import Header from "../organism/Header";
+import styles from "./VideoIdeas.Styles";
+import {
+  getVideoContentQuery,
+  queryGroq,
+} from "../../services/groq/groq.service";
+import { addDocToFB } from "../../services/firebase/firebase.service";
+import { VIDEO_IDEA_COLLECTION } from "../../services/firebase/firebase.config";
+import FloatingInput, {
+  FloatingSelect,
+} from "../../components/InputFields/FloatingInput";
+import Header from "../../components/organism/Header";
 
 const VideoIdeaGenerator = () => {
   const [topic, setTopic] = useState("");
@@ -14,7 +21,7 @@ const VideoIdeaGenerator = () => {
   const [toneActive, setToneActive] = useState(false);
   const [minutesActive, setMinutesActive] = useState(false);
   const [secondsActive, setSecondsActive] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [errors] = useState({});
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -33,35 +40,25 @@ const VideoIdeaGenerator = () => {
     setLoading(true);
 
     try {
-      const totalLengthInMinutes = minutes + seconds / 60;
-      const response = await fetch(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-          },
-          body: JSON.stringify({
-            model: "llama3-8b-8192",
-            messages: [
-              {
-                role: "user",
-                content: `Give me 1 short and concise video content idea for the topic "${topic}" in a "${tone}" tone, around ${totalLengthInMinutes} minutes long.`,
-              },
-            ],
-            temperature: 0.7,
-          }),
-        }
-      );
+      const contentPayload = {
+        totalLengthInMinutes: minutes + seconds / 60,
+        topic,
+        tone,
+      };
+      const content = getVideoContentQuery(contentPayload);
 
-      const data = await response.json();
-      if (data.choices) {
-        setIdeas(data.choices[0].message.content);
+      const groqQueryPayload = {
+        content,
+      };
+      const groqResponse = await queryGroq(groqQueryPayload);
+
+      if (groqResponse.choices) {
+        setIdeas(groqResponse.choices[0].message.content);
       } else {
-        throw new Error(data.error?.message || "Error from Groq API");
+        throw new Error(groqResponse.error?.message || "Error from Groq API");
       }
     } catch (err) {
+      console.log("Error: ", err);
       setError("Failed to fetch ideas.");
     } finally {
       setLoading(false);
@@ -75,18 +72,22 @@ const VideoIdeaGenerator = () => {
 
   const handlePublish = async () => {
     try {
-      await addDoc(collection(db, "video-idea"), {
+      const newRecord = {
         title: topic,
         description: editableIdea,
         tags: "",
         status: "Draft",
         createdAt: new Date().toISOString(),
-      });
+      };
+
+      await addDocToFB(newRecord, VIDEO_IDEA_COLLECTION);
+
       setIsPublished(true);
       setPreview("");
       setTopic("");
       setEditableIdea("");
-    } catch (error) {
+    } catch (err) {
+      console.log("Error: ", err);
       setError("Failed to save content. Please try again.");
     }
   };
@@ -94,18 +95,12 @@ const VideoIdeaGenerator = () => {
   return (
     <>
       <Header />
-      <div className={`p-6 ${ideas ? "max-w-6xl" : "max-w-lg"} mx-auto`}>
-        <h2 className="text-2xl font-bold mb-4">
-          Generate Video Ideas with AI
-        </h2>
+      <div className={styles.wrapper(ideas)}>
+        <h2 className={styles.title}>Generate Video Ideas with AI</h2>
 
-        <div
-          className={`flex gap-6 transition-all duration-500 ${
-            ideas ? "flex-row" : "flex-col"
-          }`}
-        >
+        <div className={styles.layout(ideas)}>
           {/* Input Section */}
-          <div className={`${ideas ? "w-1/3" : "w-full"} space-y-4`}>
+          <div className={styles.inputSection(ideas)}>
             <FloatingInput
               label="Enter topic"
               value={topic}
@@ -154,29 +149,24 @@ const VideoIdeaGenerator = () => {
               </div>
             </div>
 
-            <button
-              onClick={handleGenerate}
-              className=" bg-purple-800 text-white text-base px-4 py-3 rounded-md transition duration-300 hover:bg-white hover:text-purple-800 hover:border-purple-800 border border-transparent cursor-pointer"
-            >
+            <button onClick={handleGenerate} className={styles.generateBtn}>
               {loading ? "Generating..." : "Generate Ideas"}
             </button>
 
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p className={styles.errorText}>{error}</p>}
           </div>
 
           {/* Idea Preview Section */}
           {ideas && (
-            <div className="w-full bg-gray-50 p-4 border rounded shadow-md">
+            <div className={styles.ideaSection}>
               {!preview ? (
                 <>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Generated Ideas:
-                  </h3>
-                  <p className="whitespace-pre-wrap">{ideas}</p>
+                  <h3 className={styles.ideaHeading}>Generated Ideas:</h3>
+                  <p className={styles.ideaContent}>{ideas}</p>
                   <div className="mt-2">
                     <button
                       onClick={handlePreview}
-                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500"
+                      className={styles.previewBtn}
                     >
                       Preview Ideas
                     </button>
@@ -184,35 +174,31 @@ const VideoIdeaGenerator = () => {
                 </>
               ) : !isPublished ? (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
-                    Edit & Preview Idea:
-                  </h3>
+                  <h3 className={styles.ideaHeading}>Edit & Preview Idea:</h3>
                   <textarea
-                    className="w-full p-2 border rounded resize-none min-h-[120px]"
+                    className={styles.textarea}
                     value={editableIdea}
                     onChange={(e) => setEditableIdea(e.target.value)}
                   />
                   <div className="flex gap-4">
                     <button
                       onClick={handlePublish}
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500"
+                      className={styles.publishBtn}
                     >
                       Publish
                     </button>
                     <button
                       onClick={() => setPreview("")}
-                      className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-400"
+                      className={styles.cancelBtn}
                     >
                       Cancel
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4 bg-green-50 p-4 rounded border">
-                  <h3 className="text-lg font-semibold">Published Idea:</h3>
-                  <p className="text-gray-800 whitespace-pre-wrap">
-                    {editableIdea}
-                  </p>
+                <div className={styles.publishedWrapper}>
+                  <h3 className={styles.publishedTitle}>Published Idea:</h3>
+                  <p className={styles.ideaContent}>{editableIdea}</p>
                 </div>
               )}
             </div>
